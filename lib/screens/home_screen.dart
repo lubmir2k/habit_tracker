@@ -8,10 +8,21 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   Future<void> _logout(BuildContext context) async {
-    final storageService = await StorageService.getInstance();
-    await storageService.clearSession();
-    if (context.mounted) {
-      Navigator.pushReplacementNamed(context, '/login');
+    try {
+      final storageService = await StorageService.getInstance();
+      await storageService.clearSession();
+      if (context.mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logout failed: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
     }
   }
 
