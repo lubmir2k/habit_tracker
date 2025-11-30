@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// User model for the Habit Tracker app.
 class User {
   final String name;
@@ -69,11 +71,12 @@ class User {
         other.username == username &&
         other.age == age &&
         other.country == country &&
-        other.password == password;
+        other.password == password &&
+        listEquals(other.prebuiltHabits, prebuiltHabits);
   }
 
   @override
   int get hashCode {
-    return Object.hash(name, username, age, country, password);
+    return Object.hash(name, username, age, country, password, prebuiltHabits);
   }
 }

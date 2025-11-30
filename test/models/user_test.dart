@@ -192,6 +192,51 @@ void main() {
 
         expect(user1, isNot(equals(user2)));
       });
+
+      test('users with same fields but different prebuiltHabits are not equal', () {
+        const user1 = User(
+          name: 'John',
+          username: 'john',
+          age: 25,
+          country: 'USA',
+          password: 'pass',
+          prebuiltHabits: ['Exercise'],
+        );
+
+        const user2 = User(
+          name: 'John',
+          username: 'john',
+          age: 25,
+          country: 'USA',
+          password: 'pass',
+          prebuiltHabits: ['Read'],
+        );
+
+        expect(user1, isNot(equals(user2)));
+      });
+
+      test('users with same prebuiltHabits are equal', () {
+        const user1 = User(
+          name: 'John',
+          username: 'john',
+          age: 25,
+          country: 'USA',
+          password: 'pass',
+          prebuiltHabits: ['Exercise', 'Read'],
+        );
+
+        const user2 = User(
+          name: 'John',
+          username: 'john',
+          age: 25,
+          country: 'USA',
+          password: 'pass',
+          prebuiltHabits: ['Exercise', 'Read'],
+        );
+
+        expect(user1, equals(user2));
+        expect(user1.hashCode, equals(user2.hashCode));
+      });
     });
   });
 }
