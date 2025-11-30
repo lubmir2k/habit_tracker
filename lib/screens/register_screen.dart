@@ -99,8 +99,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       // Check if username already exists
       if (storageService.userExists(_usernameController.text.trim())) {
+        if (!mounted) return;
         _showError('Username already exists');
-        setState(() => _isLoading = false);
         return;
       }
 
@@ -140,7 +140,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: Theme.of(context).colorScheme.error,
       ),
     );
   }
@@ -149,7 +149,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green,
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
     );
   }
