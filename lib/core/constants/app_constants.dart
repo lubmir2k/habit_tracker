@@ -8,6 +8,8 @@ class AppConstants {
   // Storage Keys
   static const String userDataKey = 'user_data';
   static const String isLoggedInKey = 'is_logged_in';
+  static const String habitsDataKey = 'habits_data';
+  static const String completionsDataKey = 'completions_data';
 
   // Default Test Credentials (course requirement)
   static const String defaultUsername = 'testuser';
@@ -25,5 +27,15 @@ class AppConstants {
     'Read',
     'Meditate',
     'Drink Water',
+  ];
+
+  // Default Habit Colors (as int values for storage)
+  static const List<int> defaultHabitColors = [
+    0xFFE53935, // Red
+    0xFF1E88E5, // Blue
+    0xFF43A047, // Green
+    0xFFFDD835, // Yellow
+    0xFF8E24AA, // Purple
+    0xFFFF9800, // Orange
   ];
 }

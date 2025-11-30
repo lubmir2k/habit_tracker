@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/constants/app_constants.dart';
+import '../models/habit.dart';
+import '../models/habit_completion.dart';
 import '../models/user.dart';
 
 /// Service for managing local storage using SharedPreferences.
@@ -98,5 +100,119 @@ class StorageService {
   User? getCurrentUser() {
     if (!isLoggedIn()) return null;
     return getUser();
+  }
+
+  // ============ Habits Data Operations ============
+
+  /// Saves habits list to local storage.
+  Future<bool> saveHabits(List<Habit> habits) async {
+    try {
+      final jsonList = habits.map((h) => h.toJson()).toList();
+      final jsonString = jsonEncode(jsonList);
+      return await _prefs!.setString(AppConstants.habitsDataKey, jsonString);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Retrieves habits list from local storage.
+  List<Habit> getHabits() {
+    try {
+      final jsonString = _prefs!.getString(AppConstants.habitsDataKey);
+      if (jsonString == null) return [];
+      final jsonList = jsonDecode(jsonString) as List<dynamic>;
+      return jsonList
+          .map((json) => Habit.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Adds a new habit.
+  Future<bool> addHabit(Habit habit) async {
+    final habits = getHabits();
+    habits.add(habit);
+    return saveHabits(habits);
+  }
+
+  /// Deletes a habit by ID.
+  Future<bool> deleteHabit(String habitId) async {
+    final habits = getHabits();
+    habits.removeWhere((h) => h.id == habitId);
+    final habitsDeleted = await saveHabits(habits);
+
+    // Also remove completions for this habit
+    final completions = _getAllCompletions();
+    completions.removeWhere((c) => c.habitId == habitId);
+    await _saveAllCompletions(completions);
+
+    return habitsDeleted;
+  }
+
+  // ============ Habit Completions Operations ============
+
+  /// Gets all completions from storage.
+  List<HabitCompletion> _getAllCompletions() {
+    try {
+      final jsonString = _prefs!.getString(AppConstants.completionsDataKey);
+      if (jsonString == null) return [];
+      final jsonList = jsonDecode(jsonString) as List<dynamic>;
+      return jsonList
+          .map((json) => HabitCompletion.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Saves all completions to storage.
+  Future<bool> _saveAllCompletions(List<HabitCompletion> completions) async {
+    try {
+      final jsonList = completions.map((c) => c.toJson()).toList();
+      final jsonString = jsonEncode(jsonList);
+      return await _prefs!
+          .setString(AppConstants.completionsDataKey, jsonString);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Gets completions for a specific date.
+  List<HabitCompletion> getCompletionsForDate(DateTime date) {
+    final dateKey = _getDateKey(date);
+    return _getAllCompletions().where((c) => c.dateKey == dateKey).toList();
+  }
+
+  /// Checks if a habit is completed for a specific date.
+  bool isHabitCompletedForDate(String habitId, DateTime date) {
+    final dateKey = _getDateKey(date);
+    return _getAllCompletions()
+        .any((c) => c.habitId == habitId && c.dateKey == dateKey);
+  }
+
+  /// Marks a habit as completed for a specific date.
+  Future<bool> completeHabit(String habitId, DateTime date) async {
+    if (isHabitCompletedForDate(habitId, date)) return true;
+
+    final completions = _getAllCompletions();
+    completions.add(HabitCompletion(
+      habitId: habitId,
+      date: DateTime(date.year, date.month, date.day),
+    ));
+    return _saveAllCompletions(completions);
+  }
+
+  /// Removes completion for a habit on a specific date.
+  Future<bool> uncompleteHabit(String habitId, DateTime date) async {
+    final dateKey = _getDateKey(date);
+    final completions = _getAllCompletions();
+    completions.removeWhere((c) => c.habitId == habitId && c.dateKey == dateKey);
+    return _saveAllCompletions(completions);
+  }
+
+  /// Generates a date key string (YYYY-MM-DD).
+  String _getDateKey(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 }
