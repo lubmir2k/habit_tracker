@@ -9,7 +9,10 @@ class HabitCompletion {
   });
 
   /// Get a normalized date key (YYYY-MM-DD) for storage.
-  String get dateKey =>
+  String get dateKey => formatDateKey(date);
+
+  /// Static method to format any DateTime as a date key (YYYY-MM-DD).
+  static String formatDateKey(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   /// Creates a HabitCompletion from JSON map.

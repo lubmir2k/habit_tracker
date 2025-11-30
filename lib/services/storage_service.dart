@@ -145,9 +145,9 @@ class StorageService {
     // Also remove completions for this habit
     final completions = _getAllCompletions();
     completions.removeWhere((c) => c.habitId == habitId);
-    await _saveAllCompletions(completions);
+    final completionsDeleted = await _saveAllCompletions(completions);
 
-    return habitsDeleted;
+    return habitsDeleted && completionsDeleted;
   }
 
   // ============ Habit Completions Operations ============
@@ -180,22 +180,27 @@ class StorageService {
 
   /// Gets completions for a specific date.
   List<HabitCompletion> getCompletionsForDate(DateTime date) {
-    final dateKey = _getDateKey(date);
+    final dateKey = HabitCompletion.formatDateKey(date);
     return _getAllCompletions().where((c) => c.dateKey == dateKey).toList();
   }
 
   /// Checks if a habit is completed for a specific date.
   bool isHabitCompletedForDate(String habitId, DateTime date) {
-    final dateKey = _getDateKey(date);
+    final dateKey = HabitCompletion.formatDateKey(date);
     return _getAllCompletions()
         .any((c) => c.habitId == habitId && c.dateKey == dateKey);
   }
 
   /// Marks a habit as completed for a specific date.
   Future<bool> completeHabit(String habitId, DateTime date) async {
-    if (isHabitCompletedForDate(habitId, date)) return true;
-
     final completions = _getAllCompletions();
+    final dateKey = HabitCompletion.formatDateKey(date);
+
+    // Check if already completed (avoids double read)
+    if (completions.any((c) => c.habitId == habitId && c.dateKey == dateKey)) {
+      return true;
+    }
+
     completions.add(HabitCompletion(
       habitId: habitId,
       date: DateTime(date.year, date.month, date.day),
@@ -205,14 +210,9 @@ class StorageService {
 
   /// Removes completion for a habit on a specific date.
   Future<bool> uncompleteHabit(String habitId, DateTime date) async {
-    final dateKey = _getDateKey(date);
+    final dateKey = HabitCompletion.formatDateKey(date);
     final completions = _getAllCompletions();
     completions.removeWhere((c) => c.habitId == habitId && c.dateKey == dateKey);
     return _saveAllCompletions(completions);
-  }
-
-  /// Generates a date key string (YYYY-MM-DD).
-  String _getDateKey(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 }
