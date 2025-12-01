@@ -128,9 +128,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     final theme = Theme.of(context);
 
     return PopScope(
-      canPop: true,
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
+        if (!didPop) {
           Navigator.of(context).pop(_habitsChanged);
         }
       },
