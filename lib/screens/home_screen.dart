@@ -18,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Habit> _habits = [];
   Set<String> _completedHabitIds = {};
   bool _isLoading = true;
+  String? _userName;
 
   @override
   void initState() {
@@ -32,10 +33,12 @@ class _HomeScreenState extends State<HomeScreen> {
       final habits = storageService.getHabits();
       final completions = storageService.getCompletionsForDate(_selectedDate);
       final completedIds = completions.map((c) => c.habitId).toSet();
+      final user = storageService.getCurrentUser();
 
       setState(() {
         _habits = habits;
         _completedHabitIds = completedIds;
+        _userName = user?.name;
         _isLoading = false;
       });
     } catch (e) {
@@ -73,22 +76,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppConstants.appName),
+        title: Text(_userName != null ? 'Hi, $_userName!' : AppConstants.appName),
       ),
       drawer: const AppDrawer(),
-      body: Column(
-        children: [
-          _buildDateSelector(theme),
-          _buildMotivationalQuote(theme),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _habits.isEmpty
-                    ? _buildEmptyState(theme)
-                    : _buildHabitsList(theme),
-          ),
-        ],
-      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _loadData,
+              child: ListView(
+                children: [
+                  _buildWelcomeMessage(theme),
+                  _buildDateSelector(theme),
+                  _buildMotivationalQuote(theme),
+                  if (_habits.isEmpty)
+                    _buildEmptyState(theme)
+                  else
+                    _buildHabitsSections(theme),
+                ],
+              ),
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.pushNamed(context, '/add-habit');
@@ -98,6 +104,22 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         tooltip: 'Add Habit',
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildWelcomeMessage(ThemeData theme) {
+    final greeting = _userName != null
+        ? 'Welcome back, $_userName!'
+        : 'Welcome to Habit Tracker!';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Text(
+        greeting,
+        style: theme.textTheme.headlineSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -231,60 +253,113 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHabitsList(ThemeData theme) {
-    final completedCount =
-        _habits.where((h) => _completedHabitIds.contains(h.id)).length;
+  Widget _buildHabitsSections(ThemeData theme) {
+    final todoHabits =
+        _habits.where((h) => !_completedHabitIds.contains(h.id)).toList();
+    final doneHabits =
+        _habits.where((h) => _completedHabitIds.contains(h.id)).toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'Today\'s Progress: $completedCount/${_habits.length}',
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // To Do Section
+          Text(
+            'To Do',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _habits.length,
-            itemBuilder: (context, index) {
-              final habit = _habits[index];
-              final isCompleted = _completedHabitIds.contains(habit.id);
-
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: habit.color,
-                    child: Icon(
-                      isCompleted ? Icons.check : Icons.circle_outlined,
-                      color: Colors.white,
-                    ),
-                  ),
-                  title: Text(
-                    habit.name,
-                    style: TextStyle(
-                      decoration:
-                          isCompleted ? TextDecoration.lineThrough : null,
-                      color: isCompleted ? theme.colorScheme.outline : null,
-                    ),
-                  ),
-                  trailing: Checkbox(
-                    value: isCompleted,
-                    onChanged: (_) => _toggleHabitCompletion(habit.id),
-                  ),
-                  onTap: () => _toggleHabitCompletion(habit.id),
+          const SizedBox(height: 8),
+          if (todoHabits.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                'All done for today!',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.outline,
                 ),
-              );
-            },
+              ),
+            )
+          else
+            ...todoHabits.map((habit) => _buildHabitCard(habit, false, theme)),
+
+          const SizedBox(height: 16),
+
+          // Done Section
+          Text(
+            'Done',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          const SizedBox(height: 8),
+          if (doneHabits.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                'Swipe left on a habit to mark it done',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
+            )
+          else
+            ...doneHabits.map((habit) => _buildHabitCard(habit, true, theme)),
+
+          const SizedBox(height: 80), // Space for FAB
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHabitCard(Habit habit, bool isCompleted, ThemeData theme) {
+    return Dismissible(
+      key: Key(habit.id),
+      direction: isCompleted
+          ? DismissDirection.startToEnd
+          : DismissDirection.endToStart,
+      background: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: isCompleted ? Colors.orange : Colors.green,
+          borderRadius: BorderRadius.circular(12),
         ),
-      ],
+        alignment: isCompleted ? Alignment.centerLeft : Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Icon(
+          isCompleted ? Icons.undo : Icons.check,
+          color: Colors.white,
+        ),
+      ),
+      confirmDismiss: (direction) async {
+        await _toggleHabitCompletion(habit.id);
+        return false; // Don't actually dismiss, just toggle
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 8),
+        child: ListTile(
+          leading: Container(
+            width: 12,
+            height: 40,
+            decoration: BoxDecoration(
+              color: habit.color,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          title: Text(
+            habit.name,
+            style: TextStyle(
+              decoration: isCompleted ? TextDecoration.lineThrough : null,
+              color: isCompleted ? theme.colorScheme.outline : null,
+            ),
+          ),
+          trailing: isCompleted
+              ? const Icon(Icons.check_circle, color: Colors.green)
+              : null,
+        ),
+      ),
     );
   }
 
