@@ -28,7 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadData() async {
     if (!mounted) return;
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     setState(() => _isLoading = true);
     try {
       final storageService = await StorageService.getInstance();
@@ -47,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      scaffoldMessenger.showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to load habits.')),
       );
     }
@@ -89,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(_userName != null ? 'Hi, $_userName!' : AppConstants.appName),
       ),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(onProfileReturn: _loadData),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(

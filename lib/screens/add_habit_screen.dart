@@ -18,6 +18,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   final _nameController = TextEditingController();
   int _selectedColorIndex = 0;
   bool _isSaving = false;
+  bool _habitsChanged = false;
   List<Habit> _existingHabits = [];
 
   @override
@@ -58,6 +59,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
 
       if (mounted) {
         if (success) {
+          _habitsChanged = true;
           _nameController.clear();
           _loadHabits();
           scaffoldMessenger.showSnackBar(
@@ -107,6 +109,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
 
       if (mounted) {
         if (success) {
+          _habitsChanged = true;
           _loadHabits();
           scaffoldMessenger.showSnackBar(
             const SnackBar(content: Text('Habit deleted')),
@@ -125,10 +128,10 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     final theme = Theme.of(context);
 
     return PopScope(
-      canPop: true,
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          Navigator.of(context).pop(true); // Signal refresh needed
+        if (!didPop) {
+          Navigator.of(context).pop(_habitsChanged);
         }
       },
       child: Scaffold(

@@ -4,10 +4,12 @@ import '../services/storage_service.dart';
 
 /// Navigation drawer for the app with menu items.
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+  /// Optional callback to refresh data when returning from profile.
+  final VoidCallback? onProfileReturn;
+
+  const AppDrawer({super.key, this.onProfileReturn});
 
   Future<void> _logout(BuildContext context) async {
-    // Capture before async gap to avoid using BuildContext across await
     final navigator = Navigator.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final errorColor = Theme.of(context).colorScheme.error;
@@ -16,8 +18,10 @@ class AppDrawer extends StatelessWidget {
     try {
       final storageService = await StorageService.getInstance();
       await storageService.clearSession();
+      if (!context.mounted) return;
       navigator.pushReplacementNamed('/login');
     } catch (e) {
+      if (!context.mounted) return;
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text('Logout failed: $e'),
@@ -27,14 +31,25 @@ class AppDrawer extends StatelessWidget {
     }
   }
 
-  void _navigateTo(BuildContext context, String route, {bool replace = false}) {
+  void _navigateTo(
+    BuildContext context,
+    String route, {
+    bool replace = false,
+    void Function()? onReturn,
+  }) {
     final currentRoute = ModalRoute.of(context)?.settings.name;
-    Navigator.pop(context);
+    final navigator = Navigator.of(context);
+
+    // Close drawer first
+    navigator.pop();
+
     if (currentRoute != route) {
       if (replace) {
-        Navigator.pushReplacementNamed(context, route);
+        navigator.pushReplacementNamed(route);
       } else {
-        Navigator.pushNamed(context, route);
+        navigator.pushNamed(route).then((_) {
+          onReturn?.call();
+        });
       }
     }
   }
@@ -81,7 +96,11 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('Profile'),
-            onTap: () => _navigateTo(context, '/profile'),
+            onTap: () => _navigateTo(
+              context,
+              '/profile',
+              onReturn: onProfileReturn,
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.bar_chart),
