@@ -275,12 +275,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   List<BarChartGroupData> _buildBarGroups(ThemeData theme) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
     return List.generate(_weekDates.length, (index) {
-      final dateKey = HabitCompletion.formatDateKey(_weekDates[index]);
+      final date = _weekDates[index];
+      final dateKey = HabitCompletion.formatDateKey(date);
       final count = _dailyCompletions[dateKey] ?? 0;
-      final isToday = _weekDates[index].day == DateTime.now().day &&
-          _weekDates[index].month == DateTime.now().month &&
-          _weekDates[index].year == DateTime.now().year;
+      final isToday = date.year == today.year &&
+          date.month == today.month &&
+          date.day == today.day;
 
       return BarChartGroupData(
         x: index,
