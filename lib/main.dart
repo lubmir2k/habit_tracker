@@ -4,7 +4,10 @@ import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/notifications_screen.dart';
+import 'screens/profile_screen.dart';
 import 'screens/register_screen.dart';
+import 'screens/reports_screen.dart';
 
 void main() {
   runApp(const HabitTrackerApp());
@@ -24,6 +27,9 @@ class HabitTrackerApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const HomeScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/reports': (context) => const ReportsScreen(),
+        '/notifications': (context) => const NotificationsScreen(),
       },
     );
   }
