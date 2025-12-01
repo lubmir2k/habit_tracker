@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../core/constants/app_constants.dart';
 import '../widgets/app_drawer.dart';
 
-/// Home screen placeholder - main dashboard after login.
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+/// Reports screen placeholder.
+class ReportsScreen extends StatelessWidget {
+  const ReportsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppConstants.appName),
+        title: const Text('Reports'),
       ),
       drawer: const AppDrawer(),
       body: const Center(
@@ -19,18 +18,18 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.check_circle_outline,
+              Icons.bar_chart,
               size: 64,
-              color: Colors.green,
+              color: Colors.orange,
             ),
             SizedBox(height: 16),
             Text(
-              'Welcome to Habit Tracker!',
+              'Reports',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8),
             Text(
-              'Home screen - Coming soon',
+              'Coming soon',
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ],
