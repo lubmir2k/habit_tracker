@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
+import 'screens/add_habit_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/notifications_screen.dart';
@@ -30,6 +31,7 @@ class HabitTrackerApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/reports': (context) => const ReportsScreen(),
         '/notifications': (context) => const NotificationsScreen(),
+        '/add-habit': (context) => const AddHabitScreen(),
       },
     );
   }
