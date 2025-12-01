@@ -87,10 +87,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() => _isSaving = true);
 
     try {
+      final age = int.tryParse(_ageController.text.trim());
+      if (age == null) {
+        setState(() => _isSaving = false);
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Invalid age format')),
+        );
+        return;
+      }
+
       final updatedUser = _user!.copyWith(
         name: _nameController.text.trim(),
         username: _usernameController.text.trim(),
-        age: int.parse(_ageController.text.trim()),
+        age: age,
         country: _countryController.text.trim(),
       );
 

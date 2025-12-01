@@ -9,27 +9,26 @@ class AppDrawer extends StatelessWidget {
 
   const AppDrawer({super.key, this.onProfileReturn});
 
-  void _logout(BuildContext context) {
+  Future<void> _logout(BuildContext context) async {
     final navigator = Navigator.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final errorColor = Theme.of(context).colorScheme.error;
 
-    // Close drawer first
-    navigator.pop();
-
-    // Then perform logout
-    StorageService.getInstance().then((storageService) {
-      storageService.clearSession().then((_) {
-        navigator.pushReplacementNamed('/login');
-      });
-    }).catchError((e) {
+    navigator.pop(); // Close drawer first
+    try {
+      final storageService = await StorageService.getInstance();
+      await storageService.clearSession();
+      if (!context.mounted) return;
+      navigator.pushReplacementNamed('/login');
+    } catch (e) {
+      if (!context.mounted) return;
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text('Logout failed: $e'),
           backgroundColor: errorColor,
         ),
       );
-    });
+    }
   }
 
   void _navigateTo(
