@@ -124,14 +124,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          Navigator.of(context).pop(true); // Signal refresh needed
-        }
-      },
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: const Text('Configure Habits'),
         ),
@@ -253,7 +246,6 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 
