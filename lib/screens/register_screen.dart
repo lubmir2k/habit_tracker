@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 import '../core/constants/app_constants.dart';
+import '../models/habit.dart';
 import '../models/user.dart';
 import '../services/storage_service.dart';
 
@@ -122,6 +124,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final success = await storageService.saveUser(user);
 
       if (success && mounted) {
+        // Create actual Habit objects from selected prebuilt habits
+        if (selectedHabits.isNotEmpty) {
+          const uuid = Uuid();
+          final habits = selectedHabits.asMap().entries.map((entry) {
+            final index = entry.key;
+            final habitName = entry.value;
+            return Habit(
+              id: uuid.v4(),
+              name: habitName,
+              colorValue: AppConstants.defaultHabitColors[
+                  index % AppConstants.defaultHabitColors.length],
+              createdAt: DateTime.now(),
+            );
+          }).toList();
+          await storageService.saveHabits(habits);
+        }
+
         _showSuccess('Registration successful! Please login.');
         Navigator.pushReplacementNamed(context, '/login');
       } else {
