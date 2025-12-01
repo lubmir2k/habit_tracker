@@ -152,6 +152,15 @@ class StorageService {
 
   // ============ Habit Completions Operations ============
 
+  /// Gets all completions from storage (for reports/analytics).
+  /// Filters out orphaned completions for deleted habits.
+  List<HabitCompletion> getAllCompletions() {
+    final completions = _getAllCompletions();
+    final habitIds = getHabits().map((h) => h.id).toSet();
+    // Filter out completions for deleted habits (orphaned data)
+    return completions.where((c) => habitIds.contains(c.habitId)).toList();
+  }
+
   /// Gets all completions from storage.
   List<HabitCompletion> _getAllCompletions() {
     try {
