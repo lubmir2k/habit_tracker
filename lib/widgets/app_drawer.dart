@@ -7,21 +7,34 @@ class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
   Future<void> _logout(BuildContext context) async {
-    Navigator.pop(context); // Close drawer first
+    // Capture before async gap to avoid using BuildContext across await
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final errorColor = Theme.of(context).colorScheme.error;
+
+    navigator.pop(); // Close drawer first
     try {
       final storageService = await StorageService.getInstance();
       await storageService.clearSession();
-      if (context.mounted) {
-        Navigator.pushReplacementNamed(context, '/login');
-      }
+      navigator.pushReplacementNamed('/login');
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Logout failed: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Logout failed: $e'),
+          backgroundColor: errorColor,
+        ),
+      );
+    }
+  }
+
+  void _navigateTo(BuildContext context, String route, {bool replace = false}) {
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+    Navigator.pop(context);
+    if (currentRoute != route) {
+      if (replace) {
+        Navigator.pushReplacementNamed(context, route);
+      } else {
+        Navigator.pushNamed(context, route);
       }
     }
   }
@@ -63,34 +76,22 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Home'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/home');
-            },
+            onTap: () => _navigateTo(context, '/home', replace: true),
           ),
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('Profile'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/profile');
-            },
+            onTap: () => _navigateTo(context, '/profile'),
           ),
           ListTile(
             leading: const Icon(Icons.bar_chart),
             title: const Text('Reports'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/reports');
-            },
+            onTap: () => _navigateTo(context, '/reports'),
           ),
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text('Notifications'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/notifications');
-            },
+            onTap: () => _navigateTo(context, '/notifications'),
           ),
           const Divider(),
           ListTile(
