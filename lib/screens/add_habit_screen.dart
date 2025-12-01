@@ -72,7 +72,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          const SnackBar(content: Text('An error occurred while saving.')),
         );
         setState(() => _isSaving = false);
       }

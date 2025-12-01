@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     try {
       final storageService = await StorageService.getInstance();
@@ -35,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final completedIds = completions.map((c) => c.habitId).toSet();
       final user = storageService.getCurrentUser();
 
+      if (!mounted) return;
       setState(() {
         _habits = habits;
         _completedHabitIds = completedIds;
@@ -42,7 +44,11 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load habits.')),
+      );
     }
   }
 
@@ -52,10 +58,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (isCompleted) {
       await storageService.uncompleteHabit(habitId, _selectedDate);
-      setState(() => _completedHabitIds.remove(habitId));
+      if (mounted) {
+        setState(() => _completedHabitIds.remove(habitId));
+      }
     } else {
       await storageService.completeHabit(habitId, _selectedDate);
-      setState(() => _completedHabitIds.add(habitId));
+      if (mounted) {
+        setState(() => _completedHabitIds.add(habitId));
+      }
     }
   }
 
@@ -98,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.pushNamed(context, '/add-habit');
-          if (result == true) {
+          if (mounted && result == true) {
             _loadData();
           }
         },
