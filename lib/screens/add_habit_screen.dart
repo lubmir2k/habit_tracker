@@ -42,6 +42,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   Future<void> _saveHabit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     setState(() => _isSaving = true);
 
     try {
@@ -59,27 +60,29 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         if (success) {
           _nameController.clear();
           _loadHabits();
-          ScaffoldMessenger.of(context).showSnackBar(
+          scaffoldMessenger.showSnackBar(
             const SnackBar(content: Text('Habit added')),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
+          scaffoldMessenger.showSnackBar(
             const SnackBar(content: Text('Failed to save habit')),
           );
         }
-        setState(() => _isSaving = false);
       }
     } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('An error occurred while saving.')),
+      );
+    } finally {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('An error occurred while saving.')),
-        );
         setState(() => _isSaving = false);
       }
     }
   }
 
   Future<void> _deleteHabit(Habit habit) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -105,11 +108,11 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       if (mounted) {
         if (success) {
           _loadHabits();
-          ScaffoldMessenger.of(context).showSnackBar(
+          scaffoldMessenger.showSnackBar(
             const SnackBar(content: Text('Habit deleted')),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
+          scaffoldMessenger.showSnackBar(
             const SnackBar(content: Text('Failed to delete habit')),
           );
         }
