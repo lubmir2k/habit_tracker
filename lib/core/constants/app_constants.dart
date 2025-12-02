@@ -10,6 +10,7 @@ class AppConstants {
   static const String isLoggedInKey = 'is_logged_in';
   static const String habitsDataKey = 'habits_data';
   static const String completionsDataKey = 'completions_data';
+  static const String notificationSettingsKey = 'notification_settings';
 
   // Default Test Credentials (course requirement)
   static const String defaultUsername = 'testuser';
