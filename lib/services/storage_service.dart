@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/app_constants.dart';
 import '../models/habit.dart';
 import '../models/habit_completion.dart';
+import '../models/notification_settings.dart';
 import '../models/user.dart';
 
 /// Service for managing local storage using SharedPreferences.
@@ -223,5 +224,31 @@ class StorageService {
     final completions = _getAllCompletions();
     completions.removeWhere((c) => c.habitId == habitId && c.dateKey == dateKey);
     return _saveAllCompletions(completions);
+  }
+
+  // ============ Notification Settings Operations ============
+
+  /// Saves notification settings to local storage.
+  Future<bool> saveNotificationSettings(NotificationSettings settings) async {
+    try {
+      final jsonString = jsonEncode(settings.toJson());
+      return await _prefs!
+          .setString(AppConstants.notificationSettingsKey, jsonString);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Retrieves notification settings from local storage.
+  NotificationSettings getNotificationSettings() {
+    try {
+      final jsonString =
+          _prefs!.getString(AppConstants.notificationSettingsKey);
+      if (jsonString == null) return const NotificationSettings();
+      return NotificationSettings.fromJson(
+          jsonDecode(jsonString) as Map<String, dynamic>);
+    } catch (e) {
+      return const NotificationSettings();
+    }
   }
 }
