@@ -41,6 +41,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _updateSettings(NotificationSettings newSettings) async {
+    if (!mounted) return;
     setState(() {
       _settings = newSettings;
     });
