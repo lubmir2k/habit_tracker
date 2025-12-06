@@ -144,17 +144,7 @@ void main() {
         final json = original.toJson();
         final restored = NotificationSettings.fromJson(json);
 
-        expect(restored.globalEnabled, original.globalEnabled);
-        expect(restored.morningEnabled, original.morningEnabled);
-        expect(restored.morningHour, original.morningHour);
-        expect(restored.morningMinute, original.morningMinute);
-        expect(restored.afternoonEnabled, original.afternoonEnabled);
-        expect(restored.afternoonHour, original.afternoonHour);
-        expect(restored.afternoonMinute, original.afternoonMinute);
-        expect(restored.eveningEnabled, original.eveningEnabled);
-        expect(restored.eveningHour, original.eveningHour);
-        expect(restored.eveningMinute, original.eveningMinute);
-        expect(restored.enabledHabitIds, original.enabledHabitIds);
+        expect(restored, original);
       });
     });
 
@@ -235,6 +225,56 @@ void main() {
       test('pads minutes with leading zero', () {
         expect(NotificationSettings.formatTime(8, 5), '8:05 AM');
         expect(NotificationSettings.formatTime(14, 9), '2:09 PM');
+      });
+    });
+
+    group('equality', () {
+      test('equal settings are equal', () {
+        final settings1 = NotificationSettings(
+          globalEnabled: true,
+          morningHour: 7,
+          enabledHabitIds: {'habit-1'},
+        );
+
+        final settings2 = NotificationSettings(
+          globalEnabled: true,
+          morningHour: 7,
+          enabledHabitIds: {'habit-1'},
+        );
+
+        expect(settings1, equals(settings2));
+        expect(settings1.hashCode, equals(settings2.hashCode));
+      });
+
+      test('different settings are not equal', () {
+        const settings1 = NotificationSettings(globalEnabled: true);
+        const settings2 = NotificationSettings(globalEnabled: false);
+
+        expect(settings1, isNot(equals(settings2)));
+      });
+
+      test('settings with different enabledHabitIds are not equal', () {
+        final settings1 = NotificationSettings(
+          enabledHabitIds: {'habit-1'},
+        );
+
+        final settings2 = NotificationSettings(
+          enabledHabitIds: {'habit-2'},
+        );
+
+        expect(settings1, isNot(equals(settings2)));
+      });
+
+      test('settings with same enabledHabitIds in different order are equal', () {
+        final settings1 = NotificationSettings(
+          enabledHabitIds: {'habit-1', 'habit-2'},
+        );
+
+        final settings2 = NotificationSettings(
+          enabledHabitIds: {'habit-2', 'habit-1'},
+        );
+
+        expect(settings1, equals(settings2));
       });
     });
 

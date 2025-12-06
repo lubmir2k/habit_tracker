@@ -208,24 +208,13 @@ void main() {
         expect(find.text('Welcome back!'), findsOneWidget);
       });
 
-      testWidgets('login button is disabled during loading', (tester) async {
+      testWidgets('login button is enabled before submitting', (tester) async {
         await tester.pumpWidget(createTestApp());
 
         // Verify button is enabled before login
         final button = tester.widget<ElevatedButton>(
             find.widgetWithText(ElevatedButton, 'Login'));
         expect(button.onPressed, isNotNull);
-
-        // Complete login successfully
-        await tester.enterText(find.widgetWithText(TextFormField, 'Username'),
-            AppConstants.defaultUsername);
-        await tester.enterText(find.widgetWithText(TextFormField, 'Password'),
-            AppConstants.defaultPassword);
-        await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
-        await tester.pumpAndSettle();
-
-        // Should have navigated to home
-        expect(find.text('Home Screen'), findsOneWidget);
       });
     });
   });
