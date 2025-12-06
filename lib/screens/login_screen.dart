@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/app_constants.dart';
 import '../services/storage_service.dart';
+import '../widgets/feedback_helper.dart';
 
 /// Login screen for user authentication.
 class LoginScreen extends StatefulWidget {
@@ -73,12 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ),
-    );
+    FeedbackHelper.showError(context, message);
   }
 
   @override

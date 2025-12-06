@@ -4,6 +4,8 @@ import '../core/constants/app_constants.dart';
 import '../models/habit.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/feedback_helper.dart';
 
 /// Home screen - main dashboard showing habits and daily progress.
 class HomeScreen extends StatefulWidget {
@@ -46,9 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load habits.')),
-      );
+      FeedbackHelper.showError(context, 'Failed to load habits.');
     }
   }
 
@@ -235,31 +235,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildEmptyState(ThemeData theme) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.checklist,
-            size: 64,
-            color: theme.colorScheme.outline,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No habits yet',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Tap + to add your first habit',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-          ),
-        ],
-      ),
+    return EmptyState(
+      icon: Icons.checklist,
+      title: 'No habits yet',
+      subtitle: 'Start building better habits today',
+      actionLabel: 'Add Habit',
+      onAction: () async {
+        final result = await Navigator.pushNamed(context, '/add-habit');
+        if (mounted && result == true) {
+          _loadData();
+        }
+      },
     );
   }
 
@@ -365,9 +351,23 @@ class _HomeScreenState extends State<HomeScreen> {
               color: isCompleted ? theme.colorScheme.outline : null,
             ),
           ),
-          trailing: isCompleted
-              ? const Icon(Icons.check_circle, color: Colors.green)
-              : null,
+          trailing: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) {
+              return ScaleTransition(scale: animation, child: child);
+            },
+            child: isCompleted
+                ? Icon(
+                    Icons.check_circle,
+                    key: const ValueKey('checked'),
+                    color: Colors.green.shade600,
+                  )
+                : const SizedBox(
+                    key: ValueKey('unchecked'),
+                    width: 24,
+                    height: 24,
+                  ),
+          ),
         ),
       ),
     );

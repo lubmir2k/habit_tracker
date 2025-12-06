@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/feedback_helper.dart';
 
 /// Profile screen for viewing and editing user information.
 class ProfileScreen extends StatefulWidget {
@@ -82,17 +84,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
     setState(() => _isSaving = true);
 
     try {
       final age = int.tryParse(_ageController.text.trim());
       if (age == null) {
         setState(() => _isSaving = false);
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text('Invalid age format')),
-        );
+        if (mounted) FeedbackHelper.showError(context, 'Invalid age format');
         return;
       }
 
@@ -114,21 +112,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isEditing = false;
           _isSaving = false;
         });
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text('Profile saved')),
-        );
+        FeedbackHelper.showSuccess(context, 'Profile saved');
       } else {
         setState(() => _isSaving = false);
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text('Failed to save profile')),
-        );
+        FeedbackHelper.showError(context, 'Failed to save profile');
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isSaving = false);
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text('An error occurred while saving')),
-        );
+        FeedbackHelper.showError(context, 'An error occurred while saving');
       }
     }
   }
@@ -213,23 +205,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     if (_user == null) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.person_off, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'No user data found',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Please log in with a registered account',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-          ],
-        ),
+      return const EmptyState(
+        icon: Icons.person_off,
+        title: 'No user data found',
+        subtitle: 'Please log in with a registered account',
       );
     }
 

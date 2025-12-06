@@ -5,6 +5,7 @@ import '../core/constants/app_constants.dart';
 import '../models/habit.dart';
 import '../models/user.dart';
 import '../services/storage_service.dart';
+import '../widgets/feedback_helper.dart';
 
 /// Registration screen for new user account creation.
 class RegisterScreen extends StatefulWidget {
@@ -157,21 +158,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ),
-    );
+    FeedbackHelper.showError(context, message);
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-      ),
-    );
+    FeedbackHelper.showSuccess(context, message);
   }
 
   @override
