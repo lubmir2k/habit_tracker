@@ -141,6 +141,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           await storageService.saveHabits(habits);
         }
 
+        if (!mounted) return;
         _showSuccess('Registration successful! Please login.');
         Navigator.pushReplacementNamed(context, '/login');
       } else {
