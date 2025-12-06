@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Model for notification settings.
 class NotificationSettings {
   final bool globalEnabled;
@@ -103,4 +105,38 @@ class NotificationSettings {
   String get morningTimeString => formatTime(morningHour, morningMinute);
   String get afternoonTimeString => formatTime(afternoonHour, afternoonMinute);
   String get eveningTimeString => formatTime(eveningHour, eveningMinute);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is NotificationSettings &&
+        other.globalEnabled == globalEnabled &&
+        other.morningEnabled == morningEnabled &&
+        other.morningHour == morningHour &&
+        other.morningMinute == morningMinute &&
+        other.afternoonEnabled == afternoonEnabled &&
+        other.afternoonHour == afternoonHour &&
+        other.afternoonMinute == afternoonMinute &&
+        other.eveningEnabled == eveningEnabled &&
+        other.eveningHour == eveningHour &&
+        other.eveningMinute == eveningMinute &&
+        setEquals(other.enabledHabitIds, enabledHabitIds);
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      globalEnabled,
+      morningEnabled,
+      morningHour,
+      morningMinute,
+      afternoonEnabled,
+      afternoonHour,
+      afternoonMinute,
+      eveningEnabled,
+      eveningHour,
+      eveningMinute,
+      Object.hashAll(enabledHabitIds),
+    );
+  }
 }

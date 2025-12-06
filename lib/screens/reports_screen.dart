@@ -17,7 +17,6 @@ class ReportsScreen extends StatefulWidget {
 class _ReportsScreenState extends State<ReportsScreen> {
   bool _isLoading = true;
   List<Habit> _habits = [];
-  List<HabitCompletion> _completions = [];
 
   // Weekly data
   late List<DateTime> _weekDates;
@@ -67,7 +66,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (mounted) {
       setState(() {
         _habits = habits;
-        _completions = completions;
         _dailyCompletions = dailyCompletions;
         _habitCompletionCounts = habitCounts;
         _isLoading = false;
