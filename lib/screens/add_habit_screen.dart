@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../core/constants/app_constants.dart';
 import '../models/habit.dart';
 import '../services/storage_service.dart';
+import '../widgets/feedback_helper.dart';
 
 /// Screen for configuring habits - add new and manage existing.
 class AddHabitScreen extends StatefulWidget {
@@ -43,7 +44,6 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   Future<void> _saveHabit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     setState(() => _isSaving = true);
 
     try {
@@ -62,19 +62,15 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
           _habitsChanged = true;
           _nameController.clear();
           _loadHabits();
-          scaffoldMessenger.showSnackBar(
-            const SnackBar(content: Text('Habit added')),
-          );
+          FeedbackHelper.showSuccess(context, 'Habit added');
         } else {
-          scaffoldMessenger.showSnackBar(
-            const SnackBar(content: Text('Failed to save habit')),
-          );
+          FeedbackHelper.showError(context, 'Failed to save habit');
         }
       }
     } catch (e) {
-      scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('An error occurred while saving.')),
-      );
+      if (mounted) {
+        FeedbackHelper.showError(context, 'An error occurred while saving.');
+      }
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -83,8 +79,6 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   }
 
   Future<void> _deleteHabit(Habit habit) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -111,13 +105,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         if (success) {
           _habitsChanged = true;
           _loadHabits();
-          scaffoldMessenger.showSnackBar(
-            const SnackBar(content: Text('Habit deleted')),
-          );
+          FeedbackHelper.showSuccess(context, 'Habit deleted');
         } else {
-          scaffoldMessenger.showSnackBar(
-            const SnackBar(content: Text('Failed to delete habit')),
-          );
+          FeedbackHelper.showError(context, 'Failed to delete habit');
         }
       }
     }
@@ -227,10 +217,30 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
               ),
               const SizedBox(height: 16),
               if (_existingHabits.isEmpty)
-                Text(
-                  'No habits yet. Add your first habit above!',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.outline,
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.format_list_bulleted,
+                        size: 48,
+                        color: theme.colorScheme.outline,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'No habits yet',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.outline,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Add your first habit above!',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.outline,
+                        ),
+                      ),
+                    ],
                   ),
                 )
               else
