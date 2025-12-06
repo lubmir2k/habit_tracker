@@ -9,6 +9,7 @@ class AppDrawer extends StatelessWidget {
 
   const AppDrawer({super.key, this.onProfileReturn});
 
+  /// Logs out the user and navigates to login screen.
   Future<void> _logout(BuildContext context) async {
     final navigator = Navigator.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -31,6 +32,9 @@ class AppDrawer extends StatelessWidget {
     }
   }
 
+  /// Navigates to a route, optionally replacing current route.
+  ///
+  /// Closes the drawer first, then navigates if not already on that route.
   void _navigateTo(
     BuildContext context,
     String route, {

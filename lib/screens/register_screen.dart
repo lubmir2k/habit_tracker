@@ -92,6 +92,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
+  /// Creates a new user account with the provided information.
+  ///
+  /// Validates all fields, checks for duplicate username, creates
+  /// the user and any selected prebuilt habits, then redirects to login.
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
 

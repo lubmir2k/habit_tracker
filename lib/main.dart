@@ -1,3 +1,10 @@
+/// Habit Tracker - A mobile app for tracking daily habits.
+///
+/// This is the main entry point for the Habit Tracker application.
+/// Built with Flutter as part of the Coursera Mobile App Development
+/// Capstone Project.
+library;
+
 import 'package:flutter/material.dart';
 
 import 'core/constants/app_constants.dart';
@@ -11,13 +18,34 @@ import 'screens/register_screen.dart';
 import 'screens/reports_screen.dart';
 import 'services/notification_service.dart';
 
+/// Application entry point.
+///
+/// Initializes Flutter bindings and the notification service before
+/// launching the app. The notification service must be initialized
+/// early to handle scheduled notifications.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService.instance.initialize();
   runApp(const HabitTrackerApp());
 }
 
+/// Root widget for the Habit Tracker application.
+///
+/// Configures the MaterialApp with:
+/// - Material 3 theme from [AppTheme]
+/// - Named routes for navigation
+/// - Login screen as the initial route
+///
+/// ## Routes
+/// - `/login` - User authentication
+/// - `/register` - New user registration
+/// - `/home` - Main dashboard with habit lists
+/// - `/profile` - User profile view/edit
+/// - `/reports` - Weekly progress charts
+/// - `/notifications` - Notification settings
+/// - `/add-habit` - Add/manage habits
 class HabitTrackerApp extends StatelessWidget {
+  /// Creates the root application widget.
   const HabitTrackerApp({super.key});
 
   @override

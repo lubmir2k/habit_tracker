@@ -30,6 +30,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     _loadData();
   }
 
+  /// Initializes the list of dates for the current week (Mon-Sun).
   void _initWeekDates() {
     final today = DateTime.now();
     // Get the start of this week (Monday)
@@ -40,6 +41,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
+  /// Loads habits and completions, calculates weekly statistics.
   Future<void> _loadData() async {
     final storageService = await StorageService.getInstance();
     final habits = storageService.getHabits();

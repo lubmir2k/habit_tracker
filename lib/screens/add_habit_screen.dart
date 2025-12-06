@@ -35,6 +35,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     super.dispose();
   }
 
+  /// Loads existing habits from storage to display in the list.
   Future<void> _loadHabits() async {
     final storageService = await StorageService.getInstance();
     setState(() {
@@ -42,6 +43,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     });
   }
 
+  /// Creates and saves a new habit with the specified name and color.
   Future<void> _saveHabit() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -79,6 +81,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     }
   }
 
+  /// Deletes a habit after user confirmation.
+  ///
+  /// Shows a confirmation dialog before removing the habit and its completions.
   Future<void> _deleteHabit(Habit habit) async {
     final confirm = await showDialog<bool>(
       context: context,
