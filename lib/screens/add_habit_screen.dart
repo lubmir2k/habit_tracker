@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../core/constants/app_constants.dart';
 import '../models/habit.dart';
 import '../services/storage_service.dart';
+import '../widgets/empty_state.dart';
 import '../widgets/feedback_helper.dart';
 
 /// Screen for configuring habits - add new and manage existing.
@@ -217,31 +218,10 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
               ),
               const SizedBox(height: 16),
               if (_existingHabits.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.format_list_bulleted,
-                        size: 48,
-                        color: theme.colorScheme.outline,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'No habits yet',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.outline,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Add your first habit above!',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.outline,
-                        ),
-                      ),
-                    ],
-                  ),
+                const EmptyState(
+                  icon: Icons.format_list_bulleted,
+                  title: 'No habits yet',
+                  subtitle: 'Add your first habit above!',
                 )
               else
                 ..._existingHabits.map((habit) => Card(

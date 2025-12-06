@@ -357,10 +357,10 @@ class _HomeScreenState extends State<HomeScreen> {
               return ScaleTransition(scale: animation, child: child);
             },
             child: isCompleted
-                ? const Icon(
+                ? Icon(
                     Icons.check_circle,
-                    key: ValueKey('checked'),
-                    color: Colors.green,
+                    key: const ValueKey('checked'),
+                    color: Colors.green.shade600,
                   )
                 : const SizedBox(
                     key: ValueKey('unchecked'),
