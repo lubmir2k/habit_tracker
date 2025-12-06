@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/habit.dart';
 import '../models/notification_settings.dart';
+import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_drawer.dart';
 
@@ -46,6 +47,39 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       _settings = newSettings;
     });
     await _storageService?.saveNotificationSettings(newSettings);
+
+    // Update scheduled notifications
+    await NotificationService.instance.scheduleNotifications(
+      settings: newSettings,
+      habits: _habits,
+    );
+  }
+
+  Future<void> _onGlobalToggleChanged(bool value) async {
+    if (value) {
+      // Request permissions when enabling
+      final granted = await NotificationService.instance.requestPermissions();
+      if (!granted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please enable notifications in Settings'),
+            ),
+          );
+        }
+        return;
+      }
+    }
+    await _updateSettings(_settings.copyWith(globalEnabled: value));
+  }
+
+  Future<void> _sendTestNotification() async {
+    await NotificationService.instance.showTestNotification();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Test notification sent!')),
+      );
+    }
   }
 
   Future<void> _showTimePicker(
@@ -113,6 +147,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildGlobalToggle(theme),
+                  if (_settings.globalEnabled) ...[
+                    const SizedBox(height: 12),
+                    _buildTestNotificationButton(theme),
+                  ],
                   const SizedBox(height: 24),
                   _buildReminderTimesSection(theme),
                   const SizedBox(height: 24),
@@ -141,9 +179,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ),
         value: _settings.globalEnabled,
-        onChanged: (value) {
-          _updateSettings(_settings.copyWith(globalEnabled: value));
-        },
+        onChanged: _onGlobalToggleChanged,
         secondary: Icon(
           _settings.globalEnabled
               ? Icons.notifications_active
@@ -152,6 +188,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ? theme.colorScheme.primary
               : theme.colorScheme.outline,
         ),
+      ),
+    );
+  }
+
+  Widget _buildTestNotificationButton(ThemeData theme) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: _sendTestNotification,
+        icon: const Icon(Icons.notifications_active),
+        label: const Text('Send Test Notification'),
       ),
     );
   }
