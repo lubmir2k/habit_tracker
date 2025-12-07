@@ -16,10 +16,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  /// Currently selected date for viewing habits.
   DateTime _selectedDate = DateTime.now();
+
+  /// List of all user habits.
   List<Habit> _habits = [];
+
+  /// Set of habit IDs completed on the selected date.
   Set<String> _completedHabitIds = {};
+
+  /// Whether data is currently loading.
   bool _isLoading = true;
+
+  /// Current user's name for personalized greeting.
   String? _userName;
 
   @override
@@ -28,6 +37,10 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadData();
   }
 
+  /// Loads habits, completions, and user data from storage.
+  ///
+  /// Called on init and when date selection changes.
+  /// Updates [_habits], [_completedHabitIds], and [_userName].
   Future<void> _loadData() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
@@ -52,6 +65,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /// Toggles the completion status of a habit for the selected date.
+  ///
+  /// If the habit is already completed, removes the completion.
+  /// Otherwise, marks the habit as completed.
   Future<void> _toggleHabitCompletion(String habitId) async {
     final storageService = await StorageService.getInstance();
     final isCompleted = _completedHabitIds.contains(habitId);
@@ -69,11 +86,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /// Handles date selection from the week date picker.
   void _onDateSelected(DateTime date) {
     setState(() => _selectedDate = date);
     _loadData();
   }
 
+  /// Returns a list of dates for the current week (Monday to Sunday).
   List<DateTime> _getWeekDates() {
     final today = DateTime.now();
     final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
@@ -310,6 +329,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// Builds a dismissible card for a single habit.
+  ///
+  /// Swipe direction depends on completion state:
+  /// - Incomplete habits: swipe left to complete
+  /// - Completed habits: swipe right to undo
   Widget _buildHabitCard(Habit habit, bool isCompleted, ThemeData theme) {
     return Dismissible(
       key: Key(habit.id),
@@ -373,10 +397,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// Compares two dates ignoring time components.
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
+  /// Returns three-letter abbreviation for a weekday (1=Mon, 7=Sun).
   String _getDayAbbreviation(int weekday) {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     return days[weekday - 1];

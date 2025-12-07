@@ -45,6 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
+  /// Loads the current user's profile data from storage.
   Future<void> _loadUser() async {
     final storageService = await StorageService.getInstance();
     final user = storageService.getCurrentUser();
@@ -81,6 +82,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() => _isEditing = false);
   }
 
+  /// Saves the edited profile data to storage.
+  ///
+  /// Validates form inputs, updates the user model, and persists changes.
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 

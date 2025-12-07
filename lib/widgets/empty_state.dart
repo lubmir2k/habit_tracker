@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 
 /// Reusable empty state widget with consistent styling.
+///
+/// Displays a centered message with icon for screens with no content.
+/// Optionally includes an action button.
 class EmptyState extends StatelessWidget {
+  /// Icon displayed prominently at the top.
   final IconData icon;
+
+  /// Main title text.
   final String title;
+
+  /// Descriptive subtitle text.
   final String subtitle;
+
+  /// Optional label for the action button.
   final String? actionLabel;
+
+  /// Optional callback when action button is pressed.
   final VoidCallback? onAction;
 
   const EmptyState({

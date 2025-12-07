@@ -44,11 +44,76 @@ All user stories are tracked as GitHub Issues. See the full list:
 
 ## Tech Stack
 
-- **Framework**: Flutter
+- **Framework**: Flutter 3.10+
 - **Language**: Dart
-- **Local Storage**: SharedPreferences / SQLite
-- **State Management**: TBD
+- **Local Storage**: SharedPreferences
+- **State Management**: StatefulWidget + setState
 - **Notifications**: flutter_local_notifications
+- **Charts**: fl_chart
+
+## Architecture
+
+### Overview
+
+The app follows a **service-based architecture** with clear separation of concerns:
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Screens   │────▶│  Services   │────▶│   Models    │
+│   (UI)      │     │  (Logic)    │     │   (Data)    │
+└─────────────┘     └─────────────┘     └─────────────┘
+       │                   │
+       ▼                   ▼
+┌─────────────┐     ┌─────────────┐
+│   Widgets   │     │SharedPrefs  │
+│ (Reusable)  │     │ (Storage)   │
+└─────────────┘     └─────────────┘
+```
+
+### Key Patterns
+
+**Singleton Services**
+- `StorageService` - Manages all data persistence via SharedPreferences
+- `NotificationService` - Handles local notification scheduling
+
+```dart
+// Usage example
+final storage = await StorageService.getInstance();
+final habits = storage.getHabits();
+```
+
+**Data Flow**
+1. User interacts with **Screen** (e.g., HomeScreen)
+2. Screen calls **Service** methods (e.g., StorageService.addHabit)
+3. Service persists/retrieves **Models** (e.g., Habit, User)
+4. Screen updates UI via `setState()`
+
+**State Management**
+- Uses Flutter's built-in `StatefulWidget` + `setState()`
+- Each screen manages its own state
+- Services are stateless singletons
+
+### Data Models
+
+| Model | Purpose |
+|-------|---------|
+| `User` | User profile data (name, username, age, country) |
+| `Habit` | Habit definition (id, name, color) |
+| `HabitCompletion` | Daily completion record |
+| `NotificationSettings` | Notification preferences |
+
+### Navigation
+
+Uses Flutter's named routes defined in `main.dart`:
+- `/login` - Authentication
+- `/register` - New user registration
+- `/home` - Main dashboard
+- `/profile` - User profile
+- `/add-habit` - Configure habits
+- `/reports` - Weekly progress
+- `/notifications` - Notification settings
+
+For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Getting Started
 
@@ -77,18 +142,23 @@ flutter run
 ```
 habit_tracker/
 ├── lib/
-│   ├── main.dart
-│   ├── screens/
-│   ├── widgets/
-│   ├── models/
-│   ├── services/
-│   └── utils/
+│   ├── main.dart              # App entry point
+│   ├── core/
+│   │   ├── constants/         # App-wide constants
+│   │   └── theme/             # Theme configuration
+│   ├── models/                # Data models (Habit, User, etc.)
+│   ├── screens/               # UI screens (7 screens)
+│   ├── services/              # Business logic (Storage, Notifications)
+│   └── widgets/               # Reusable widgets
 ├── test/
-├── assets/
-├── pubspec.yaml
-├── README.md
-├── product_backlog.md
-└── issue_template.md
+│   ├── models/                # Model unit tests
+│   ├── services/              # Service tests
+│   └── screens/               # Widget tests
+├── docs/
+│   ├── ARCHITECTURE.md        # Detailed architecture docs
+│   ├── DEVELOPMENT_METHODOLOGY.md
+│   └── PROCESS.md
+└── pubspec.yaml
 ```
 
 ## Development

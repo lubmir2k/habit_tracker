@@ -27,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  /// Validates that username is not empty.
   String? _validateUsername(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Username is required';
@@ -41,6 +42,10 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
+  /// Attempts to authenticate the user with provided credentials.
+  ///
+  /// On success, navigates to home screen.
+  /// On failure, displays an error message.
   Future<void> _login() async {
     if (_formKey.currentState?.validate() != true) return;
 

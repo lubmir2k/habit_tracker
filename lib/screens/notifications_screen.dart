@@ -26,6 +26,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     _loadData();
   }
 
+  /// Loads notification settings and habits from storage.
   Future<void> _loadData() async {
     final storageService = await StorageService.getInstance();
     final settings = storageService.getNotificationSettings();
@@ -41,6 +42,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
+  /// Persists updated notification settings and reschedules notifications.
   Future<void> _updateSettings(NotificationSettings newSettings) async {
     if (!mounted) return;
     setState(() {
