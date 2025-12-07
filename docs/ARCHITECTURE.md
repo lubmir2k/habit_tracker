@@ -77,6 +77,7 @@ class StorageService {
 
   StorageService._();
 
+  // Must be awaited, especially on first call to initialize SharedPreferences.
   static Future<StorageService> getInstance() async {
     _instance ??= StorageService._();
     _prefs ??= await SharedPreferences.getInstance();
